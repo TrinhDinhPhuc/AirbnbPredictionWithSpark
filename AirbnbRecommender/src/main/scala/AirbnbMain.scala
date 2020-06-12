@@ -17,7 +17,7 @@ object AirbnbMain {
     conf.set("spark.kryoserializer.buffer.max", "256m")
     val sc = new SparkContext(conf)
 
-    // SparkSession 생성
+    // SparkSession 
     val spark = SparkSession
       .builder()
       .appName("AirbnbRecommender")

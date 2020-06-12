@@ -4,7 +4,7 @@
 		module="airbnbrecommender_2.11"
 		revision="0.1"
 		status="integration"
-		publication="20200611183055"
+		publication="20200612150852"
 	>
 		<description>
 		AirbnbRecommender
