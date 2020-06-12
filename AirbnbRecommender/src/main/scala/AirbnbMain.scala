@@ -14,10 +14,12 @@ object AirbnbMain {
     conf.setAppName("AirbnbRecommender") // app 이름
     conf.set("spark.driver.bindAddress", "127.0.0.1") // driver ip
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    conf.set("spark.kryoserializer.buffer.max", "256m")
+    conf.set("spark.kryoserializer.buffer.max", "128m")
+    conf.set("spark.eventLog.enabled", "true")
+
     val sc = new SparkContext(conf)
 
-    // SparkSession 
+    // SparkSession
     val spark = SparkSession
       .builder()
       .appName("AirbnbRecommender")

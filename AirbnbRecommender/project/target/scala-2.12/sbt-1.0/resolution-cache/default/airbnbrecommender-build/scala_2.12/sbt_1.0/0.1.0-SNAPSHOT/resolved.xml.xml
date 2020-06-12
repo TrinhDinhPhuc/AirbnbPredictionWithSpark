@@ -4,7 +4,7 @@
 		module="airbnbrecommender-build"
 		revision="0.1.0-SNAPSHOT"
 		status="integration"
-		publication="20200612150847"
+		publication="20200612152914"
 		e:sbtVersion="1.0" e:scalaVersion="2.12"
 	>
 		<description>
