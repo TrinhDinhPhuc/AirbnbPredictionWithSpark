@@ -7,12 +7,21 @@ object AirbnbMain {
   val PATH_RESULT_PARQUET = "/home/harry/Documents/Airbnb/Airbnb_Japan/resultDf.parquet"
 
   def main(args: Array[String]): Unit = {
-
+    //SparkSession
+//    val spark = SparkSession
+//      .builder()
+//      .master("spark://220.149.84.24:7077")
+//      .appName("AirbnbRecommender")
+//      .config("spark.driver.bindAddress", "127.0.0.1")
+//      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+//      .config("spark.kryoserializer.buffer.max", "128m")
+//      .config("spark.eventLog.enabled", "true")
+//      .getOrCreate()
     // SparkContext
     val conf: SparkConf = new SparkConf()
-    conf.setMaster("spark://220.149.84.24:7077") //
-    conf.setAppName("AirbnbRecommender") // app 이름
-    conf.set("spark.driver.bindAddress", "127.0.0.1") // driver ip
+    conf.setMaster("local[*]") //spark://220.149.84.24:7077
+    conf.setAppName("AirbnbRecommender")
+    conf.set("spark.driver.bindAddress", "127.0.0.1")
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.kryoserializer.buffer.max", "128m")
     conf.set("spark.eventLog.enabled", "true")
@@ -26,12 +35,12 @@ object AirbnbMain {
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    // load dataframe
+     //load dataframe
     val reviewsDetailDf = Loader.loadReviewsDetail(spark)
     val listingsDf = Loader.loadListings(spark)
     val neigbourhoodsDf = Loader.loadNeighbourhoods(spark)
 
-    // id2name Map
+    // id2name Map0
     val neighbourhoodMap = Loader.getNeighbourhoodMap(spark, neigbourhoodsDf)
     val reviewerMap = Loader.getReviewerMap(spark, reviewsDetailDf)
     sc.broadcast(neighbourhoodMap)  // broadcast to executors
@@ -53,6 +62,5 @@ object AirbnbMain {
 
     // 결과 출력
     recommendations.show(10, false)
-
   }
 }
