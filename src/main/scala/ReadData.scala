@@ -1,4 +1,4 @@
-import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.functions.{col, monotonically_increasing_id}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession, types}
@@ -45,25 +45,30 @@ object ReadData {
 //    +----------+-------------------+
 //  only showing top 2 rows
 
-  def readFullCSV(sparkSession: SparkSession):DataFrame={
+  def readFullCSV_DF(sparkSession: SparkSession):DataFrame={
     val data = sparkSession
       .read
       .option("inferSchema","true")
       .option("header","true")
       .csv(PATH_LISTINGS_DETAIL)
-
+    println(data.count()) //show no. rows
+    println(data.columns.size) //show no. cols
     data.show(2)
+    import org.apache.spark.sql.functions.{isnan,isnull,count,col}
+    data.select()
+    data.printSchema()
+
     data
   }
 
   def loadReviewsDetail(sparksession:  SparkSession): DataFrame = {
     val reviewsDetailSchema = StructType(Seq(
-      StructField("listing_id",IntegerType,false),
-      StructField("id",IntegerType,false),
-      StructField("date",StringType,false),
-      StructField("reviewer_id",IntegerType,false),
-      StructField("reviewer_name",StringType,false),
-      StructField("comments",DoubleType,false)
+      StructField(name ="listing_id",dataType = IntegerType,nullable = false),
+      StructField(name ="id",dataType = IntegerType,nullable = false),
+      StructField(name ="date",dataType = StringType,nullable = false),
+      StructField(name ="reviewer_id",dataType = IntegerType,nullable = false),
+      StructField(name ="reviewer_name",dataType = StringType,nullable = false),
+      StructField(name ="comments",dataType = DoubleType,nullable = false)
     ))
 
     val reviewsDetailDF = sparksession
@@ -76,8 +81,7 @@ object ReadData {
       .select(col("listing_id"), col("date"), col("reviewer_id"), col("reviewer_name"))
       .as("reviewsDetailDf")
 //    reviewsDetailDF.show(15)
-
-  reviewsDetailDF
+    reviewsDetailDF
     //      +----------+----------+-----------+-------------+
     //      |listing_id|      date|reviewer_id|reviewer_name|
     //      +----------+----------+-----------+-------------+
@@ -98,6 +102,92 @@ object ReadData {
     //      |     35303|2015-05-26|   30190986|    Sebastien|
     //      +----------+----------+-----------+-------------+
     //    only showing top 15 rows
-
   }
+
+  def loadListings(sparkession : SparkSession) : DataFrame = {
+
+    val listingSchema = StructType(Seq(
+      StructField(name = "id",dataType = IntegerType, nullable = false),
+      StructField(name = "name",dataType = StringType, nullable = false),
+      StructField(name = "host_id",dataType = IntegerType, nullable = false),
+      StructField(name = "host_name",dataType = StringType, nullable = false),
+      StructField(name = "neighbourhood_group", dataType = StringType, nullable = true),
+      StructField(name = "neighbourhood",dataType = StringType, nullable = false),
+      StructField(name = "latitude",dataType = FloatType, nullable = true),
+      StructField(name = "longitude",dataType = FloatType, nullable = true),
+      StructField(name = "room_type",dataType = StringType, nullable = true),
+      StructField(name = "price",dataType = IntegerType, nullable = false),
+      StructField(name = "minimum_nights",dataType = IntegerType, nullable = true),
+      StructField(name = "number_of_reviews", dataType = IntegerType, nullable = true),
+      StructField(name = "last_review", dataType = StringType, nullable = false),
+      StructField(name = "reviews_per_month", dataType = FloatType, nullable = false),
+      StructField(name = "calculated_host_listings_count",dataType = IntegerType, nullable = true),
+      StructField(name = "availability_365", dataType = IntegerType, nullable = true)
+    ))
+
+    val listingsDF = sparkession
+      .read
+      .schema(listingSchema)
+      .format("csv")
+      .option("header","true")
+      .option("mode", "DROPMALFORMED")
+      .load(PATH_LISTINGS)
+      .select(col (colName = "id"), col(colName = "host_id"), col(colName = "host_name"), col(colName = "neighbourhood"))
+      .as(alias = "listingsDF")  //an alias set (equivalent to SQL "AS" keyword)
+//    listingsDF.show(5)
+
+//    +------+-------+-------------------+-------------+
+//    |    id|host_id|          host_name|neighbourhood|
+//    +------+-------+-------------------+-------------+
+//    | 35303| 151977|             Miyuki|   Shibuya Ku|
+//    |197677| 964081|    Yoshimi & Marek|    Sumida Ku|
+//    |289597| 341577|           Hide&Kei|    Nerima Ku|
+//    |370759|1573631|Gilles,Mayumi,Taiki|  Setagaya Ku|
+//    |700253| 341577|           Hide&Kei|    Nerima Ku|
+//    +------+-------+-------------------+-------------+
+//    only showing top 5 rows
+    listingsDF
+  }
+
+  def loadNeighbourhoods(spark: SparkSession): DataFrame = {
+
+    val neighbourhoodsSchema = StructType(Seq(
+      StructField("neighbourhood_group", StringType, true),
+      StructField("neighbourhood", StringType, false)
+    ))
+
+    val neigbourhoodsDf = spark
+      .read
+      .schema(neighbourhoodsSchema)
+      .format("csv")
+      .option("header", "true")
+      .option("mode", "DROPMALFORMED")
+      .load(PATH_NEIGHBOURHOOD)
+      .drop("neighbourhood_group")
+      .withColumn("neighbourhood_id", monotonically_increasing_id())
+      .as("neigbourhoodsDf")
+//    neigbourhoodsDf.show(5)
+//      +--------------+----------------+
+//      | neighbourhood|neighbourhood_id|
+//      +--------------+----------------+
+//      |     Adachi Ku|               0|
+//      |   Akiruno Shi|               1|
+//      |  Akishima Shi|               2|
+//      |Aogashima Mura|               3|
+//      |    Arakawa Ku|               4|
+//      +--------------+----------------+
+//    only showing top 5 rows
+    neigbourhoodsDf
+  }
+
+  // 4. neighbourhood_id(Long) -> neighbourhood_name(String) dictionary
+    def getNeighbourhoodMap(sparkSession: SparkSession, neighbourhoodDF : DataFrame): Unit ={
+      import sparkSession.implicits._
+      val neighbourhoodMap = neighbourhoodDF
+        .select(col(colName = "neighbourhood_id"), col(colName = "neighbourhood"))
+        .as[(Long,String)]
+        .collect()
+        .toMap
+      neighbourhoodMap
+    }
 }

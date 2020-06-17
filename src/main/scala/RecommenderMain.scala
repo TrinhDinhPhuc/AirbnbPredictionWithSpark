@@ -5,8 +5,10 @@ object RecommenderMain {
 
   val PATH_ALS_MODEL = "/home/harry/Documents/Airbnb/Airbnb_Japan/model"
   val PATH_RESULT_PARQUET = "/home/harry/Documents/Airbnb/Airbnb_Japan/resultDf.parquet"
+
   def main(args: Array[String]):Unit ={
-  //SparkSession
+
+    //SparkSession
   val sparkSession = SparkSession
     .builder()
     .master("local[*]")
@@ -18,9 +20,18 @@ object RecommenderMain {
     .getOrCreate()
 
     //load dataframe
-    val readFullData = ReadData.readFullCSV(sparkSession)
-    val reviewsDetailDf = ReadData.loadReviewsDetail(sparkSession)
+//    val readFullData = ReadData.readFullCSV_DF(sparkSession)
+    val reviewsDetailDF = ReadData.loadReviewsDetail(sparkSession)
+    val listingsDF = ReadData.loadListings(sparkSession)
+    val neighbourhoodDF = ReadData.loadNeighbourhoods(sparkSession)
 
-
+    //Map0
+    val neighbourhoodMap:Unit = ReadData.getNeighbourhoodMap(sparkSession, neighbourhoodDF)
+    //A broadcast variable. Broadcast variables allow the programmer to keep a read-only variable cached on each machine
+    // rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset
+    // in an efficient manner. Spark also attempts to distribute broadcast variables using efficient broadcast algorithms
+    // to reduce communication cost.
+    sparkSession.sparkContext.broadcast(neighbourhoodMap)
+    
   }
 }
