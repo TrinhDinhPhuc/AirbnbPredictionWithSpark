@@ -54,7 +54,7 @@ object ReadData {
     println(data.count()) //show no. rows
     println(data.columns.size) //show no. cols
     data.show(2)
-    import org.apache.spark.sql.functions.{isnan,isnull,count,col}
+    import org.apache.spark.sql.functions.{isnan, isnull, count, col}
     data.select()
     data.printSchema()
 

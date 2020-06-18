@@ -21,6 +21,7 @@ object RecommenderMain {
 
     //load dataframe
 //    val readFullData = ReadData.readFullCSV_DF(sparkSession)
+//    System.exit(1)
     val reviewsDetailDF = ReadData.loadReviewsDetail(sparkSession)
     val listingsDF = ReadData.loadListings(sparkSession)
     val neighbourhoodDF = ReadData.loadNeighbourhoods(sparkSession)
