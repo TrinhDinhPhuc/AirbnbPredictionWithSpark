@@ -201,7 +201,4 @@ object ReadData {
 
     reviewerMap
   }
-
-
-
 }
