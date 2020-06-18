@@ -36,6 +36,7 @@ object RecommenderMain {
     val reviewerMap = ReadData.getReviewerMap(sparkSession, reviewsDetailDF)
     sparkSession.sparkContext.broadcast(reviewerMap)
 
+    val rating = Recommender.getRating(sparkSession, listingsDF: DataFrame, neighbourhoodDF: DataFrame, reviewsDetailDF: DataFrame)
 
   }
 }
