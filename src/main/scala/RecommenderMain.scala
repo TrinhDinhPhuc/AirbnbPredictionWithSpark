@@ -32,6 +32,10 @@ object RecommenderMain {
     // in an efficient manner. Spark also attempts to distribute broadcast variables using efficient broadcast algorithms
     // to reduce communication cost.
     sparkSession.sparkContext.broadcast(neighbourhoodMap)
-    
+
+    val reviewerMap = ReadData.getReviewerMap(sparkSession, reviewsDetailDF)
+    sparkSession.sparkContext.broadcast(reviewerMap)
+
+
   }
 }

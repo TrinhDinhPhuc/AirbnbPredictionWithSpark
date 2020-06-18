@@ -190,4 +190,15 @@ object ReadData {
         .toMap
       neighbourhoodMap
     }
+
+  def getReviewerMap(sparkSession: SparkSession, reviewsDetailDF:DataFrame): Unit ={
+    import sparkSession.implicits._
+    val reviewerMap = reviewsDetailDF
+      .select(col(colName = "reviewer_id"),col(colName = "reviewer_name"))
+      .as[(Long, String)]
+      .collect
+      .toMap
+
+    reviewerMap
+  }
 }
