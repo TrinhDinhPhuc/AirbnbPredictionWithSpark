@@ -198,7 +198,7 @@ object ReadData {
       .as[(Long, String)]
       .collect
       .toMap
-
     reviewerMap
+
   }
 }
