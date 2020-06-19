@@ -196,8 +196,17 @@ object ReadData {
     val reviewerMap = reviewsDetailDF
       .select(col(colName = "reviewer_id"),col(colName = "reviewer_name"))
       .as[(Long, String)]
-      .collect
-      .toMap
+    //      +-----------+-------------+
+    //      |reviewer_id|reviewer_name|
+    //      +-----------+-------------+
+    //      |    1502908|        Firuz|
+    //      |       null|         null|
+    //      |       null|         null|
+    //      |       null|         null|
+    //      +-----------+-------------+
+      .collect().foreach(println)
+//      .toMap
+//    reviewerMap.show(4)
     reviewerMap
 
   }

@@ -16,6 +16,5 @@ object temp {
     val myRange = sparkSession.range(1000)
     println(myRange.getClass().getName()) //get variable's type (similar to Java)
 
-
   }
 }
