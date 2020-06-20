@@ -18,7 +18,6 @@ object RecommenderMain {
     .config("spark.kryoserializer.buffet.max","128m")
     .config("spark.evenLog.enabled","true")
     .getOrCreate()
-
     //load dataframe
 //    val readFullData = ReadData.readFullCSV_DF(sparkSession)
     val reviewsDetailDF = ReadData.loadReviewsDetail(sparkSession)
