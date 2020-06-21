@@ -10,6 +10,5 @@ object EDA {
 
     println(reviewsDetailDF.count())
     reviewsDetailDF.filter("reviewer_id is null").show()
-    reviewsDetailDF.filter($"reviewer_id".isNotNull)
   }
 }
