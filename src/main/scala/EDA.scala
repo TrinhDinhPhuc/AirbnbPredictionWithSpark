@@ -7,7 +7,6 @@ object EDA {
     println("blank: " + reviewsDetailDF.filter(reviewsDetailDF("reviewer_id") === "").count())
     println(reviewsDetailDF.count())
 //    reviewsDetailDF.na.fill(0)
-    reviewsDetailDF.drop(when($"id".isNull, 0).otherwise(1)).show
 
     println(reviewsDetailDF.count())
     reviewsDetailDF.filter("reviewer_id is null").show()
