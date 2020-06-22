@@ -38,7 +38,7 @@ object RecommenderMain {
     sparkSession.sparkContext.broadcast(reviewerMap)
 
     val rating = Recommender.getRating(sparkSession, listingsDF: DataFrame, neighbourhoodDF: DataFrame, reviewsDetailDF: DataFrame)
-    val mse = Recommender.trainModel(sparkSession,rating,numIterations = 3, PATH_ALS_MODEL)
+    val mse = Recommender.trainModel(sparkSession, rating, numIterations = 3, PATH_ALS_MODEL)
 
     // >> Mean Squared Error = 0.003322032007912435
     println(">> Mean Squared Error = " + mse)
@@ -51,7 +51,6 @@ object RecommenderMain {
     recommendations.write.mode(saveMode = SaveMode.Overwrite).parquet(PATH_RESULT_PARQUET)
 
     // output result
-    recommendations.show(10, false)
-
+    recommendations.show(50, false)
   }
 }
