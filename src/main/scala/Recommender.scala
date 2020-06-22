@@ -50,7 +50,16 @@ object Recommender {
 //      +--------+---------+-------------+----------------+----------+----------+-----------+-------------+
 //    only showing top 5 rows
 
-
+    val rating = joinedListingReviewsDf
+      .groupBy("reviewer_id", "reviewer_name", "neighbourhood_id", "neighbourhood")
+      .count()
+      .rdd
+      .map(r => Rating(
+        r.getAs[Int]("reviewer_id"),
+        r.getAs[Long]("neighbourhood_id").toInt,
+        r.getLong(4).toDouble
+      ))
+    rating.foreach(println)
 
   }
 }
