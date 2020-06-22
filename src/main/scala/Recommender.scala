@@ -1,14 +1,16 @@
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import java.io.File
+import java.nio.file.{Files, Paths}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
 import org.apache.commons.io.FileUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions.{col, udf}
-import org.apache.spark.mllib.recommendation.{ALS,MatrixFactorizationModel,Rating}
+import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 object Recommender {
 
   def getRating(sparkSession: SparkSession, listingsDf : DataFrame, neibourhoodDf : DataFrame, reviewsDetailDf : DataFrame): Unit ={
@@ -60,6 +62,45 @@ object Recommender {
         r.getLong(4).toDouble
       ))
     rating.foreach(println)
+//    Rating(274610355,60,1.0)
+//    Rating(251744618,22,1.0)
+//    Rating(43778171,60,1.0)
+//    Rating(126711089,36,1.0)
+//    Rating(20431069,36,1.0)
+//    Rating(163114806,36,1.0)
+//    Rating(12385578,54,1.0)
 
+    def trainModel(sc: SparkContext, rating: RDD[Rating], numIterations: Int, path: String) = {
+      // val Array(training, test) = rating.randomSplit(Array(0.8, 0.2))
+
+      // Build the recommendation model using ALS
+      val rank = 10
+      val model = ALS.train(rating, rank, numIterations, 0.01)
+
+      // Evaluate the model on rating data
+      val usersProducts = rating
+        .map { case Rating(user, product, rate) => (user, product) }
+      val predictions = model
+        .predict(usersProducts)
+        .map { case Rating(user, product, rate) => ((user, product), rate) }
+      val ratesAndPreds = rating
+        .map { case Rating(user, product, rate) => ((user, product), rate) }
+        .join(predictions)
+
+      val MSE = ratesAndPreds
+        .map { case ((user, product), (r1, r2)) =>
+          val err = (r1 - r2)
+          err * err
+        }
+        .mean()
+
+      if (Files.exists(Paths.get(path))) {
+        FileUtils.deleteQuietly(new File(path))
+      }
+      model.save(sc, path)
+
+      MSE
+
+    }
   }
 }
