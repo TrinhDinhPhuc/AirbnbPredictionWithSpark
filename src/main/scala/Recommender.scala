@@ -87,12 +87,17 @@ object Recommender {
 //      |   65023918|    Madeleine|              56|    Sumida Ku|    1|
 
       .rdd
-//      .map(r => Rating(
-//        r.getAs[Int]("reviewer_id"),
-//        r.getAs[Long]("neighbourhood_id").toInt,
-//        r.getLong(4).toDouble
-//      ))
-    rating.foreach(println)
+//    rating.foreach(println)
+    //      [198398929,Yuan Ching,58,Taito Ku,1]
+    //      [179041367,Tomoko,58,Taito Ku,1]
+    //      [229644831,美怜,30,Koto Ku,1]
+    //      [171545123,Pimon,54,Shinjuku Ku,1]
+      .map(r => Rating(
+        r.getAs[Int]("reviewer_id"),
+        r.getAs[Long]("neighbourhood_id").toInt,
+        r.getLong(4).toDouble
+      ))
+
     System.exit(1)
 
 //    rating.foreach(println)
