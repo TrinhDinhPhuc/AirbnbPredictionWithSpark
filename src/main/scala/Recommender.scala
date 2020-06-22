@@ -97,16 +97,16 @@ object Recommender {
         r.getAs[Long]("neighbourhood_id").toInt,
         r.getLong(4).toDouble
       ))
+    /*
+    public Rating(int user,
+      int product,
+      double rating)
+     */
 
-    System.exit(1)
-
-//    rating.foreach(println)
+    rating.foreach(println)
 
 //    Rating(274610355,60,1.0)
 //    Rating(251744618,22,1.0)
-//    Rating(43778171,60,1.0)
-//    Rating(126711089,36,1.0)
-//    Rating(20431069,36,1.0)
 //    Rating(163114806,36,1.0)
 //    Rating(12385578,54,1.0)
   }
