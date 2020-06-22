@@ -81,6 +81,8 @@ object ReadData {
       .select(col("listing_id"), col("date"), col("reviewer_id"), col("reviewer_name"))
       .as("reviewsDetailDf")
 //    reviewsDetailDF.show(15)
+        .filter(col("reviewer_id").isNotNull && col("reviewer_name").isNotNull )
+
     reviewsDetailDF
     //      +----------+----------+-----------+-------------+
     //      |listing_id|      date|reviewer_id|reviewer_name|

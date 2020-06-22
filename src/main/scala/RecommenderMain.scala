@@ -21,8 +21,8 @@ object RecommenderMain {
     //load dataframe
 //    val readFullData = ReadData.readFullCSV_DF(sparkSession)
     val reviewsDetailDF = ReadData.loadReviewsDetail(sparkSession)
-    val reviewsDetailDF_cleaned = EDA.reviewsDetailDF_EDA(sparkSession,reviewsDetailDF)
-    System.exit(1)
+//    val reviewsDetailDF_cleaned = EDA.reviewsDetailDF_EDA(sparkSession,reviewsDetailDF)
+//    System.exit(1)
     val listingsDF = ReadData.loadListings(sparkSession)
     val neighbourhoodDF = ReadData.loadNeighbourhoods(sparkSession)
 
@@ -37,7 +37,7 @@ object RecommenderMain {
     val reviewerMap = ReadData.getReviewerMap(sparkSession, reviewsDetailDF)
     sparkSession.sparkContext.broadcast(reviewerMap)
 
-//    val rating = Recommender.getRating(sparkSession, listingsDF: DataFrame, neighbourhoodDF: DataFrame, reviewsDetailDF: DataFrame)
+    val rating = Recommender.getRating(sparkSession, listingsDF: DataFrame, neighbourhoodDF: DataFrame, reviewsDetailDF: DataFrame)
 
   }
 }
