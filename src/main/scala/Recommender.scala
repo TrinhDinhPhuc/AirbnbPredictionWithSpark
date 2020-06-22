@@ -69,38 +69,65 @@ object Recommender {
 //    Rating(20431069,36,1.0)
 //    Rating(163114806,36,1.0)
 //    Rating(12385578,54,1.0)
+  }
 
-    def trainModel(sc: SparkContext, rating: RDD[Rating], numIterations: Int, path: String) = {
-      // val Array(training, test) = rating.randomSplit(Array(0.8, 0.2))
+  def trainModel(sc: SparkContext, rating: RDD[Rating], numIterations: Int, path: String) = {
+    // val Array(training, test) = rating.randomSplit(Array(0.8, 0.2))
 
-      // Build the recommendation model using ALS
-      val rank = 10
-      val model = ALS.train(rating, rank, numIterations, 0.01)
+    // Build the recommendation model using ALS
+    val rank = 10
+    val model = ALS.train(rating, rank, numIterations, 0.01)
 
-      // Evaluate the model on rating data
-      val usersProducts = rating
-        .map { case Rating(user, product, rate) => (user, product) }
-      val predictions = model
-        .predict(usersProducts)
-        .map { case Rating(user, product, rate) => ((user, product), rate) }
-      val ratesAndPreds = rating
-        .map { case Rating(user, product, rate) => ((user, product), rate) }
-        .join(predictions)
+    // Evaluate the model on rating data
+    val usersProducts = rating
+      .map { case Rating(user, product, rate) => (user, product) }
+    val predictions = model
+      .predict(usersProducts)
+      .map { case Rating(user, product, rate) => ((user, product), rate) }
+    val ratesAndPreds = rating
+      .map { case Rating(user, product, rate) => ((user, product), rate) }
+      .join(predictions)
 
-      val MSE = ratesAndPreds
-        .map { case ((user, product), (r1, r2)) =>
-          val err = (r1 - r2)
-          err * err
-        }
-        .mean()
-
-      if (Files.exists(Paths.get(path))) {
-        FileUtils.deleteQuietly(new File(path))
+    val MSE = ratesAndPreds
+      .map { case ((user, product), (r1, r2)) =>
+        val err = (r1 - r2)
+        err * err
       }
-      model.save(sc, path)
+      .mean()
 
-      MSE
-
+    if (Files.exists(Paths.get(path))) {
+      FileUtils.deleteQuietly(new File(path))
     }
+    model.save(sc, path)
+
+    MSE
+  }
+
+  def loadModel(sc: SparkContext, path: String): MatrixFactorizationModel =
+    MatrixFactorizationModel.load(sc, path)
+
+  def getRecommendations(spark: SparkSession, model: MatrixFactorizationModel, products: Int,
+                         reviewerMap: Map[Long, String], neighbourhoodMap: Map[Long, String]): DataFrame = {
+    val recommendationsRdd = model
+      .recommendProductsForUsers(products)
+      .map(r => {
+        val reviewerId = r._1.toInt
+        val reviewerName = reviewerMap.getOrElse(reviewerId.toLong, "empty")
+        val neighbourhoodNames = r._2.map(rating => neighbourhoodMap.getOrElse(rating.product.toLong, "empty")).toList
+        Row(reviewerId, reviewerName, neighbourhoodNames)
+      })
+
+    val schema = new StructType()
+      .add(StructField("reviewerId", IntegerType, true))
+      .add(StructField("reviewerName", StringType, true))
+      .add(StructField("neighbourhoodNames", ArrayType(StringType), true))
+
+    val nowDatetimeUdf = udf(() => DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.now))
+
+    val recommendationsDf = spark
+      .createDataFrame(recommendationsRdd, schema)
+      .withColumn("date", nowDatetimeUdf())
+
+    recommendationsDf
   }
 }
