@@ -61,7 +61,8 @@ object Recommender {
         r.getAs[Long]("neighbourhood_id").toInt,
         r.getLong(4).toDouble
       ))
-    rating.foreach(println)
+//    rating.foreach(println)
+
 //    Rating(274610355,60,1.0)
 //    Rating(251744618,22,1.0)
 //    Rating(43778171,60,1.0)
@@ -129,8 +130,9 @@ object Recommender {
     val recommendationsDf = spark
       .createDataFrame(recommendationsRdd, schema)
       .withColumn("date", nowDatetimeUdf())
-    recommendationsDf.show(5)
 
+    recommendationsDf.show(5)
+    println(recommendationsDf.count())
     recommendationsDf
 
   }
