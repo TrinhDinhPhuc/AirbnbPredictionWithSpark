@@ -183,7 +183,7 @@ object ReadData {
   }
 
   // 4. neighbourhood_id(Long) -> neighbourhood_name(String) dictionary
-    def getNeighbourhoodMap(sparkSession: SparkSession, neighbourhoodDF : DataFrame): Unit ={
+    def getNeighbourhoodMap(sparkSession: SparkSession, neighbourhoodDF : DataFrame): Map[Long, String] ={
       import sparkSession.implicits._
       val neighbourhoodMap = neighbourhoodDF
         .select(col(colName = "neighbourhood_id"), col(colName = "neighbourhood"))
@@ -193,7 +193,7 @@ object ReadData {
       neighbourhoodMap
     }
 
-  def getReviewerMap(sparkSession: SparkSession, reviewsDetailDF:DataFrame): Unit ={
+  def getReviewerMap(sparkSession: SparkSession, reviewsDetailDF:DataFrame): Map[Long,String] ={
     import sparkSession.implicits._
     val reviewerMap = reviewsDetailDF
       .select(col(colName = "reviewer_id"),col(colName = "reviewer_name"))
@@ -206,9 +206,8 @@ object ReadData {
     //      |       null|         null|
     //      |       null|         null|
     //      +-----------+-------------+
-      .collect().foreach(println)
-//      .toMap
-//    reviewerMap.show(4)
+      .collect()
+      .toMap
     reviewerMap
 
   }

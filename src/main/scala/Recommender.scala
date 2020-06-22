@@ -13,7 +13,7 @@ import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 object Recommender {
 
-  def getRating(sparkSession: SparkSession, listingsDf : DataFrame, neibourhoodDf : DataFrame, reviewsDetailDf : DataFrame): Unit ={
+  def getRating(sparkSession: SparkSession, listingsDf : DataFrame, neibourhoodDf : DataFrame, reviewsDetailDf : DataFrame): RDD[Rating] ={
     import sparkSession.implicits._
 
 //    neibourhoodDf.show(5)
@@ -57,13 +57,13 @@ object Recommender {
 //      |700253| 341577|           Hide&Kei|    Nerima Ku|              43|
 //      +------+-------+-------------------+-------------+----------------+
 //    only showing top 5 rows
-    print(reviewsDetailDf.printSchema())
+//    print(reviewsDetailDf.printSchema())
     val joinedListingReviewsDf = joinedListingNeighbourDf
       .join(reviewsDetailDf, col("joinedListingNeighbourDf.id") === col("reviewsDetailDf.listing_id"), "inner")
       .drop("id")
       .as("joinedListingReviewsDf")
     joinedListingReviewsDf.show(5)
-    println(s">> joinedListingReviewsDf count: ${joinedListingReviewsDf.count()}")
+//    println(s">> joinedListingReviewsDf count: ${joinedListingReviewsDf.count()}")
 //      +--------+---------+-------------+----------------+----------+----------+-----------+-------------+
 //      | host_id|host_name|neighbourhood|neighbourhood_id|listing_id|      date|reviewer_id|reviewer_name|
 //      +--------+---------+-------------+----------------+----------+----------+-----------+-------------+
@@ -97,13 +97,15 @@ object Recommender {
         r.getAs[Long]("neighbourhood_id").toInt,
         r.getLong(4).toDouble
       ))
+
+    rating
+
     /*
     public Rating(int user,
       int product,
       double rating)
      */
-
-    rating.foreach(println)
+//    rating.foreach(println)
 
 //    Rating(274610355,60,1.0)
 //    Rating(251744618,22,1.0)
@@ -111,7 +113,7 @@ object Recommender {
 //    Rating(12385578,54,1.0)
   }
 
-  def trainModel(sc: SparkContext, rating: RDD[Rating], numIterations: Int, path: String) = {
+  def trainModel(sparkSession: SparkSession, rating: RDD[Rating], numIterations: Int, path: String) = {
     // val Array(training, test) = rating.randomSplit(Array(0.8, 0.2))
 
     // Build the recommendation model using ALS
@@ -120,14 +122,14 @@ object Recommender {
 
     // Evaluate the model on rating data
     val usersProducts = rating
-      .map { case Rating(user, product, rate) => (user, product) }
+      .map { case Rating(user, product, rate) => (user, product)}
 
     val predictions = model
       .predict(usersProducts)
-      .map { case Rating(user, product, rate) => ((user, product), rate) }
+      .map { case Rating(user, product, rate) => ((user, product), rate)}
 
     val ratesAndPreds = rating
-      .map { case Rating(user, product, rate) => ((user, product), rate) }
+      .map { case Rating(user, product, rate) => ((user, product), rate)}
       .join(predictions)
 
     val MSE = ratesAndPreds
@@ -141,12 +143,12 @@ object Recommender {
       FileUtils.deleteQuietly(new File(path))
     }
 
-    model.save(sc, path)
+    model.save(sparkSession.sparkContext, path)
     MSE
   }
 
-  def loadModel(sc: SparkContext, path: String): MatrixFactorizationModel =
-    MatrixFactorizationModel.load(sc, path)
+  def loadModel(sparkSession: SparkSession, path: String): MatrixFactorizationModel =
+    MatrixFactorizationModel.load(sparkSession.sparkContext, path)
 
   def getRecommendations(spark: SparkSession, model: MatrixFactorizationModel, products: Int,
                          reviewerMap: Map[Long, String], neighbourhoodMap: Map[Long, String]): DataFrame = {
@@ -170,6 +172,7 @@ object Recommender {
       .createDataFrame(recommendationsRdd, schema)
       .withColumn("date", nowDatetimeUdf())
 
+    println("why not?")
     recommendationsDf.show(5)
     println(recommendationsDf.count())
     recommendationsDf

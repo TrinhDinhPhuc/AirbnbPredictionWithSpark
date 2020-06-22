@@ -1,5 +1,5 @@
-import org.apache.spark.sql.{SparkSession,SaveMode,DataFrame}
-import  org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import org.apache.spark.{SparkConf, SparkContext}
 
 object RecommenderMain {
 
@@ -38,6 +38,20 @@ object RecommenderMain {
     sparkSession.sparkContext.broadcast(reviewerMap)
 
     val rating = Recommender.getRating(sparkSession, listingsDF: DataFrame, neighbourhoodDF: DataFrame, reviewsDetailDF: DataFrame)
+    val mse = Recommender.trainModel(sparkSession,rating,numIterations = 3, PATH_ALS_MODEL)
+
+    // >> Mean Squared Error = 0.003322032007912435
+    println(">> Mean Squared Error = " + mse)
+
+    // load model and make recommendations
+    val loadedModel = Recommender.loadModel(sparkSession, PATH_ALS_MODEL)
+    val recommendations = Recommender.getRecommendations(sparkSession , loadedModel, 5, reviewerMap, neighbourhoodMap)
+
+    // Store final result DataFrame in parquet format (mysql lamp db should be stored in actual service)
+    recommendations.write.mode(saveMode = SaveMode.Overwrite).parquet(PATH_RESULT_PARQUET)
+
+    // output result
+    recommendations.show(10, false)
 
   }
 }
