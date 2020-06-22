@@ -16,6 +16,29 @@ object Recommender {
   def getRating(sparkSession: SparkSession, listingsDf : DataFrame, neibourhoodDf : DataFrame, reviewsDetailDf : DataFrame): Unit ={
     import sparkSession.implicits._
 
+    neibourhoodDf.show(5)
+//      +--------------+----------------+
+//      | neighbourhood|neighbourhood_id|
+//      +--------------+----------------+
+//      |     Adachi Ku|               0|
+//      |   Akiruno Shi|               1|
+//      |  Akishima Shi|               2|
+//      |Aogashima Mura|               3|
+//      |    Arakawa Ku|               4|
+//      +--------------+----------------+
+//    only showing top 5 rows
+
+//    listingsDf.show(5)
+//    +------+-------+-------------------+-------------+
+//    |    id|host_id|          host_name|neighbourhood|
+//    +------+-------+-------------------+-------------+
+//    | 35303| 151977|             Miyuki|   Shibuya Ku|
+//    |197677| 964081|    Yoshimi & Marek|    Sumida Ku|
+//    |289597| 341577|           Hide&Kei|    Nerima Ku|
+//    |370759|1573631|Gilles,Mayumi,Taiki|  Setagaya Ku|
+//    |700253| 341577|           Hide&Kei|    Nerima Ku|
+//    +------+-------+-------------------+-------------+
+//    only showing top 5 rows
     // listings
     val joinedListingNeighbourDf = listingsDf
       .join(neibourhoodDf, col(colName = "listingsDf.neighbourhood") === col(colName = "neigbourhoodsDf.neighbourhood"),joinType = "inner")
@@ -23,6 +46,7 @@ object Recommender {
       .as(alias = "joinedListingNeighbourDf")
 
     joinedListingNeighbourDf.show(5)
+    System.exit(1)
 
 //      +------+-------+-------------------+-------------+----------------+
 //      |    id|host_id|          host_name|neighbourhood|neighbourhood_id|
