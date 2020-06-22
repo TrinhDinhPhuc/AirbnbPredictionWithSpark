@@ -27,7 +27,7 @@ object RecommenderMain {
     val neighbourhoodDF = ReadData.loadNeighbourhoods(sparkSession)
 
     //Map0
-    val neighbourhoodMap:Unit = ReadData.getNeighbourhoodMap(sparkSession, neighbourhoodDF)
+    val neighbourhoodMap = ReadData.getNeighbourhoodMap(sparkSession, neighbourhoodDF)
     //A broadcast variable. Broadcast variables allow the programmer to keep a read-only variable cached on each machine
     // rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset
     // in an efficient manner. Spark also attempts to distribute broadcast variables using efficient broadcast algorithms

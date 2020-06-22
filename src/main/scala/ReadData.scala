@@ -183,7 +183,7 @@ object ReadData {
   }
 
   // 4. neighbourhood_id(Long) -> neighbourhood_name(String) dictionary
-    def getNeighbourhoodMap(sparkSession: SparkSession, neighbourhoodDF : DataFrame): Map[Long, String] ={
+    def getNeighbourhoodMap(sparkSession: SparkSession, neighbourhoodDF : DataFrame): Map[Long,String] ={
       import sparkSession.implicits._
       val neighbourhoodMap = neighbourhoodDF
         .select(col(colName = "neighbourhood_id"), col(colName = "neighbourhood"))
