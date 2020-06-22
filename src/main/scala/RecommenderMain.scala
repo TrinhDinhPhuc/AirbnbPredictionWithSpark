@@ -51,6 +51,28 @@ object RecommenderMain {
     recommendations.write.mode(saveMode = SaveMode.Overwrite).parquet(PATH_RESULT_PARQUET)
 
     // output result
-    recommendations.show(50, false)
+    recommendations.show(15, false)
+//      +----------+------------+---------------------------------------------------------------------+----------+
+//      |reviewerId|reviewerName|neighbourhoodNames                                                   |date      |
+//      +----------+------------+---------------------------------------------------------------------+----------+
+//      |6764076   |Chally      |[Akishima Shi, Taito Ku, Chuo Ku, Sumida Ku, Shinjuku Ku]            |2020-06-22|
+//      |101965512 |Matthew     |[Shinjuku Ku, Taito Ku, Sumida Ku, Fussa Shi, Shibuya Ku]            |2020-06-22|
+//      |246517788 |Ole         |[Hamura Shi, Sumida Ku, Shinjuku Ku, Taito Ku, Chuo Ku]              |2020-06-22|
+//      |37084608  |Barbara     |[Taito Ku, Fussa Shi, Adachi Ku, Sumida Ku, Nakano Ku]               |2020-06-22|
+//      |290292288 |Emil        |[Hamura Shi, Akishima Shi, Chuo Ku, Taito Ku, Higashiyamato Shi]     |2020-06-22|
+//      |29066136  |Maggie      |[Hamura Shi, Akishima Shi, Minato Ku, Taito Ku, Ota Ku]              |2020-06-22|
+//      |306054540 |대현         |[Hamura Shi, Sumida Ku, Shinjuku Ku, Taito Ku, Chuo Ku]              |2020-06-22|
+//      |54444060  |Joseph      |[Hamura Shi, Sumida Ku, Shinjuku Ku, Taito Ku, Chuo Ku]              |2020-06-22|
+//      |5491860   |Chiara      |[Toshima Ku, Taito Ku, Shinjuku Ku, Fuchu Shi, Fussa Shi]            |2020-06-22|
+//      |52137756  |Jaxon       |[Shinjuku Ku, Taito Ku, Sumida Ku, Fussa Shi, Shibuya Ku]            |2020-06-22|
+//      |206254092 |Richard     |[Taito Ku, Shinjuku Ku, Chuo Ku, Sumida Ku, Shibuya Ku]              |2020-06-22|
+//      |164748804 |勇志         |[Hamura Shi, Sumida Ku, Shinjuku Ku, Taito Ku, Chuo Ku]              |2020-06-22|
+//      |60849096  |Michael     |[Akishima Shi, Shibuya Ku, Taito Ku, Hamura Shi, Fussa Shi]          |2020-06-22|
+//      |232039236 |丹          |[Toshima Ku, Taito Ku, Shinjuku Ku, Fuchu Shi, Fussa Shi]            |2020-06-22|
+//      |98843844  |Debbie      |[Fussa Shi, Tachikawa Shi, Fuchu Shi, Suginami Ku, Higashikurume Shi]|2020-06-22|
+//      |161606676 |Natthawut   |[Taito Ku, Shinjuku Ku, Chuo Ku, Sumida Ku, Shibuya Ku]              |2020-06-22|
+//      +----------+------------+---------------------------------------------------------------------+----------+
+//    only showing top 15 rows
+
   }
 }
