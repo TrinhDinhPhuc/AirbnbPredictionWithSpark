@@ -81,9 +81,11 @@ object Recommender {
     // Evaluate the model on rating data
     val usersProducts = rating
       .map { case Rating(user, product, rate) => (user, product) }
+
     val predictions = model
       .predict(usersProducts)
       .map { case Rating(user, product, rate) => ((user, product), rate) }
+
     val ratesAndPreds = rating
       .map { case Rating(user, product, rate) => ((user, product), rate) }
       .join(predictions)
@@ -98,8 +100,8 @@ object Recommender {
     if (Files.exists(Paths.get(path))) {
       FileUtils.deleteQuietly(new File(path))
     }
-    model.save(sc, path)
 
+    model.save(sc, path)
     MSE
   }
 
@@ -127,7 +129,9 @@ object Recommender {
     val recommendationsDf = spark
       .createDataFrame(recommendationsRdd, schema)
       .withColumn("date", nowDatetimeUdf())
+    recommendationsDf.show(5)
 
     recommendationsDf
+
   }
 }
