@@ -16,7 +16,7 @@ object Recommender {
   def getRating(sparkSession: SparkSession, listingsDf : DataFrame, neibourhoodDf : DataFrame, reviewsDetailDf : DataFrame): Unit ={
     import sparkSession.implicits._
 
-    neibourhoodDf.show(5)
+//    neibourhoodDf.show(5)
 //      +--------------+----------------+
 //      | neighbourhood|neighbourhood_id|
 //      +--------------+----------------+
@@ -46,7 +46,6 @@ object Recommender {
       .as(alias = "joinedListingNeighbourDf")
 
     joinedListingNeighbourDf.show(5)
-    System.exit(1)
 
 //      +------+-------+-------------------+-------------+----------------+
 //      |    id|host_id|          host_name|neighbourhood|neighbourhood_id|
@@ -79,12 +78,23 @@ object Recommender {
     val rating = joinedListingReviewsDf
       .groupBy("reviewer_id", "reviewer_name", "neighbourhood_id", "neighbourhood")
       .count()
+//      +-----------+-------------+----------------+-------------+-----+
+//      |reviewer_id|reviewer_name|neighbourhood_id|neighbourhood|count|
+//      +-----------+-------------+----------------+-------------+-----+
+//      |   31598476|        Louis|              24|      Kita Ku|    1|
+//      |   53555222|       Nicole|              24|      Kita Ku|    1|
+//      |   75870371|         Binu|              24|      Kita Ku|    1|
+//      |   65023918|    Madeleine|              56|    Sumida Ku|    1|
+
       .rdd
-      .map(r => Rating(
-        r.getAs[Int]("reviewer_id"),
-        r.getAs[Long]("neighbourhood_id").toInt,
-        r.getLong(4).toDouble
-      ))
+//      .map(r => Rating(
+//        r.getAs[Int]("reviewer_id"),
+//        r.getAs[Long]("neighbourhood_id").toInt,
+//        r.getLong(4).toDouble
+//      ))
+    rating.foreach(println)
+    System.exit(1)
+
 //    rating.foreach(println)
 
 //    Rating(274610355,60,1.0)
