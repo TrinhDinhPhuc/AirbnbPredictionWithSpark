@@ -172,7 +172,6 @@ object Recommender {
       .createDataFrame(recommendationsRdd, schema)
       .withColumn("date", nowDatetimeUdf())
 
-    println("Where is it?")
     recommendationsDf.show(5)
     println(recommendationsDf.count())
     recommendationsDf
